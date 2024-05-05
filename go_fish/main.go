@@ -1,3 +1,8 @@
-package gofish
+package main
 
-fp := gofeed.NewParser()
+import "fmt"
+import "discord"
+
+func main() {
+	fmt.Println("Test")
+}
