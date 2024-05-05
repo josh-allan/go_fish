@@ -1,4 +1,5 @@
-```#graph TD;
+```mermaid
+#graph TD;
     A[Browser] --> B{Cache};
     B -->|Found| C[Use Cached];
     B -->|Not Found| D[Resolve];
