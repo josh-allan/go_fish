@@ -1,5 +1,5 @@
 ```mermaid
-#graph TD;
+graph TD;
     A[Browser] --> B{Cache};
     B -->|Found| C[Use Cached];
     B -->|Not Found| D[Resolve];
