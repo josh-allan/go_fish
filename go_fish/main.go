@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/josh-allan/terraforming-mars/discord"
+	//"github.com/josh-allan/terraforming-mars/discord"
+	"github.com/josh-allan/terraforming-mars/parser"
 	"log"
-	"os"
+	//"os"
 )
 
 func main() {
@@ -14,6 +15,8 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	webhook_URL := os.Getenv("DISCORD_WEBHOOK_URL")
-	fmt.Println(webhook_URL)
+	// webhook_URL := os.Getenv("DISCORD_WEBHOOK_URL")
+	// fmt.Println(webhook_URL)
+	feed := parser.Feed()
+	fmt.Println(feed)
 }

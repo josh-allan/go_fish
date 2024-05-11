@@ -1,11 +1,11 @@
-package main
+package parser
 
 import (
 	"fmt"
 	"github.com/mmcdole/gofeed"
 )
 
-func feed() {
+func Feed() {
 	url := "https://ozbargain.com.au/feed"
 	fp := gofeed.NewParser()
 	feed, err := fp.ParseURL(url)
@@ -13,9 +13,6 @@ func feed() {
 		panic(err)
 	}
 	// for entry
-	fmt.Println(feed.PublishedParsed)
-}
+	return feed
 
-func main() {
-	feed()
 }
