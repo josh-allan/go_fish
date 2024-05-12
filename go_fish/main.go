@@ -1,11 +1,9 @@
 package main
 
 import (
-	//"fmt"
 	"fmt"
-	"time"
-
 	"github.com/joho/godotenv"
+	"time"
 	//"github.com/josh-allan/terraforming-mars/discord"
 	"log"
 
@@ -15,6 +13,7 @@ import (
 
 func main() {
 	err := godotenv.Load()
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -26,6 +25,7 @@ func main() {
 	var lastUpdated *time.Time
 	matchedIDs := make(map[string]bool)
 	parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
+
 	for {
 		matchingEntries, _, newMatchedIDs, err := parser.Feed(feedUrl, interestingSearches, nil, matchedIDs)
 		if err != nil {

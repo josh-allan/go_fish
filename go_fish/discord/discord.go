@@ -4,6 +4,6 @@ import (
 	"github.com/ecnepsnai/discord"
 )
 
-func main() {
+func DiscordPost() {
 	discord.Say("testing webhook")
 }
