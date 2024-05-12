@@ -21,13 +21,13 @@ func main() {
 
 	// webhook_URL := os.Getenv("DISCORD_WEBHOOK_URL")
 	// fmt.Println(webhook_URL)
-	interestingSearches := []string{"Nvidia"}
+	interestingSearches := []string{"Whey"}
 	feedUrl := "https://ozbargain.com.au/feed"
 	var lastUpdated *time.Time
 	matchedIDs := make(map[string]bool)
 	parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
 	for {
-		matchingEntries, lastUpdated, newMatchedIDs, err := parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
+		matchingEntries, _, newMatchedIDs, err := parser.Feed(feedUrl, interestingSearches, nil, matchedIDs)
 		if err != nil {
 			log.Printf("Error searching feed: %v\n", err)
 			continue

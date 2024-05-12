@@ -6,12 +6,10 @@ import (
 	"time"
 )
 
-func ContainsIngoreCase(s, substr string) bool {
-	s, substr = strings.ToUpper(s), strings.ToUpper(substr)
-	return strings.Contains(s, substr)
+func containsIgnoreCase(s, substr string) bool {
+	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
-
-func Feed(feedUrl string, intestingSearches []string, lastUpdated *time.Time, matchedIDs map[string]bool) ([]*gofeed.Item, *time.Time, []string, error) {
+func Feed(feedUrl string, interestingSearches []string, lastUpdated *time.Time, matchedIDs map[string]bool) ([]*gofeed.Item, *time.Time, []string, error) {
 	fp := gofeed.NewParser()
 	feed, err := fp.ParseURL(feedUrl)
 	if err != nil {
@@ -35,7 +33,7 @@ func Feed(feedUrl string, intestingSearches []string, lastUpdated *time.Time, ma
 		// If we match on a new string, let's append it to the appropriate list
 		// ensuring to only alert on a new entry
 		for _, term := range interestingSearches {
-			if term != "" && (ContainsIgnoreCase(entry.Title, term) || ContainsIgnoreCase(entry.Description, term)) {
+			if term != "" && (containsIgnoreCase(entry.Title, term) || containsIgnoreCase(entry.Description, term)) {
 				matchingEntries = append(matchingEntries, entry)
 				newMatchedIDs = append(newMatchedIDs, entry.GUID)
 				break
