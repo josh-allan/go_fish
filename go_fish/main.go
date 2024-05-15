@@ -29,8 +29,6 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// webhook_URL := os.Getenv("DISCORD_WEBHOOK_URL")
-	// fmt.Println(webhook_URL)
 	interestingSearches := []string{"Samsung", "Steam"}
 	feedUrl := "https://ozbargain.com.au/feed"
 	var lastUpdated *time.Time
