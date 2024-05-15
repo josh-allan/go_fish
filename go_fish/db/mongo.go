@@ -35,11 +35,11 @@ func ConnectToMongoDB() {
 		log.Fatal(err)
 	}
 
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
+	// defer func() {
+	// 	if err = client.Disconnect(context.TODO()); err != nil {
+	// 		panic(err)
+	// 	}
+	// }()
 
 	// Check the connection
 	err = client.Ping(ctx, nil)
