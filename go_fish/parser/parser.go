@@ -36,6 +36,7 @@ func Feed(feedUrl string, interestingSearches []string, lastUpdated *time.Time, 
 			if term != "" && (containsIgnoreCase(entry.Title, term) || containsIgnoreCase(entry.Description, term)) {
 				matchingEntries = append(matchingEntries, entry)
 				newMatchedIDs = append(newMatchedIDs, entry.GUID)
+
 				break
 			}
 		}

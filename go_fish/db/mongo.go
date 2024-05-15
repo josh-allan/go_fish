@@ -1,14 +1,21 @@
-package main
+package mongo
 
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+var (
+	mongoClient *mongo.Client
+	collection  *mongo.Collection
+	ctx         context.Context
 )
 
 func loadDotEnv() {
@@ -18,23 +25,38 @@ func loadDotEnv() {
 
 func ConnectToMongoDB() {
 	loadDotEnv()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	atlas_uri := os.Getenv("ATLAS_URI")
-	// Use the SetServerAPIOptions() method to set the version of the Stable API on the client
-	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI(atlas_uri).SetServerAPIOptions(serverAPI)
-	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.TODO(), opts)
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(atlas_uri))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+
 	defer func() {
 		if err = client.Disconnect(context.TODO()); err != nil {
 			panic(err)
 		}
 	}()
-	// Send a ping to confirm a successful connection
-	if err := client.Database("admin").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Err(); err != nil {
-		panic(err)
+
+	// Check the connection
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
 	}
-	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
+
+	fmt.Printf("Pinged your deployment. You successfully connected to MongoDB!")
+
+	mongoClient = client
+}
+
+func GetMongoDBClient() *mongo.Client {
+	ConnectToMongoDB()
+	return mongoClient
+}
+
+func GetCollection(databaseName, collectionName string) *mongo.Collection {
+	return GetMongoDBClient().Database(databaseName).Collection(collectionName)
 }
