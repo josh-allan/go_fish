@@ -13,18 +13,21 @@ import (
 	"github.com/josh-allan/terraforming-mars/db"
 
 	"github.com/josh-allan/terraforming-mars/parser"
-	//"os"
 	"go.mongodb.org/mongo-driver/bson"
+	"os"
 )
 
 func main() {
 	err := godotenv.Load()
 
+	mongodb_database := os.Getenv("MONGODB_DB_NAME")
+	mongodb_collection := os.Getenv("MONGODB_COLLECTION_NAME")
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	collection := mongo.GetCollection("MONGODB_DB_NAME", "MONGODB_COLLECTION_NAME")
+	collection := mongo.GetCollection(mongodb_database, mongodb_collection)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
