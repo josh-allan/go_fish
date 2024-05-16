@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"time"
 
+	"log"
+	"os"
+
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	//"github.com/josh-allan/go_fish/discord"
-	"log"
-
 	"github.com/josh-allan/go_fish/db"
-	"github.com/josh-allan/go_fish/utils"
-
-	"os"
-
+	//"github.com/josh-allan/go_fish/discord"
 	"github.com/josh-allan/go_fish/parser"
+	"github.com/josh-allan/go_fish/util"
 )
+
+var lastUpdated *time.Time
 
 func main() {
 	err := godotenv.Load()
@@ -37,7 +37,6 @@ func main() {
 
 	interestingSearches := []string{"Samsung", "Steam", "Credit Card", "NVME", "RTX", "Lenovo"}
 	feedUrl := "https://ozbargain.com.au/feed"
-	var lastUpdated *time.Time
 	matchedIDs := make(map[string]bool)
 	parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
 	for {
