@@ -1,16 +1,14 @@
 ```mermaid
 graph TD;
-    A[Browser] --> B{Cache};
-    B -->|Found| C[Use Cached];
-    B -->|Not Found| D[Resolve];
-    D --> E[Local DNS Resolver];
-    E -->|Found| F[Use Local DNS Cache];
-    E -->|Not Found| G[Query Root DNS Servers];
-    G --> H[Query TLD DNS Servers];
-    H --> I[Query Authoritative DNS Servers];
-    I --> J[Retrieve IP Address];
-    J --> K[Return IP to Resolver];
-    K --> L[Return IP to Browser];
-    F --> L;
-    L --> M[Use IP]; terraforming-mars
+    A[main.go] -->|Uses| B[parser.go]
+    B -->|Uses| C[gofeed]
+    B -->|Uses| D[shared.go]
+    B -->|Uses| E[mongodb.go]
+    B -->|Uses| F[discord.go]
+    D -->|Shares| B
+    D -->|Shares| A
+    E -->|Connects to| G[MongoDB]
+    F -->|Posts to| H[Discord]
+    G -->|Stores data in| E
+    H -->|Posts data to| F
 ```

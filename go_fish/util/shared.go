@@ -9,3 +9,12 @@ type MatchingDocuments struct {
 	Time primitive.DateTime `bson:"time"`
 	Url  string             `bson:"url"`
 }
+
+var SearchTerms = []string{
+	"Samsung",
+	"Steam",
+	"Credit Card",
+	"NVME",
+	"RTX",
+	"Lenovo",
+}

@@ -35,10 +35,11 @@ func main() {
 
 	defer cancel()
 
-	interestingSearches := []string{"Samsung", "Steam", "Credit Card", "NVME", "RTX", "Lenovo"}
+	interestingSearches := &shared.SearchTerms
 	feedUrl := "https://ozbargain.com.au/feed"
 	matchedIDs := make(map[string]bool)
 	parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
+
 	for {
 		matchingEntries, _, newMatchedIDs, err := parser.Feed(feedUrl, interestingSearches, nil, matchedIDs)
 		if err != nil {
