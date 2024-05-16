@@ -6,21 +6,18 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	//"github.com/josh-allan/terraforming-mars/discord"
+	//"github.com/josh-allan/go_fish/discord"
 	"log"
 
-	"github.com/josh-allan/terraforming-mars/db"
+	"github.com/josh-allan/go_fish/db"
+	"github.com/josh-allan/go_fish/utils"
 
-	"github.com/josh-allan/terraforming-mars/parser"
 	"os"
-)
 
-type MatchingDocuments struct {
-	Name string `bson:"name"`
-	Time string `bson:"time"`
-	Url  string `bson:"url"`
-}
+	"github.com/josh-allan/go_fish/parser"
+)
 
 func main() {
 	err := godotenv.Load()
@@ -32,12 +29,13 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	collection := mongo.GetCollection(mongodb_database, mongodb_collection)
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	db_client := &db.MongoClient{}
+	collection := db_client.GetCollection(mongodb_database, mongodb_collection)
+
 	defer cancel()
 
-	interestingSearches := []string{"Samsung", "Steam"}
+	interestingSearches := []string{"Samsung", "Steam", "Credit Card", "NVME", "RTX", "Lenovo"}
 	feedUrl := "https://ozbargain.com.au/feed"
 	var lastUpdated *time.Time
 	matchedIDs := make(map[string]bool)
@@ -52,8 +50,8 @@ func main() {
 		if len(matchingEntries) > 0 {
 			for _, entry := range matchingEntries {
 				fmt.Printf("Matching entry found in %s: %s at %s\n", feedUrl, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
-				matchingDocuments := &MatchingDocuments{Name: entry.Title,
-					Time: time.Now().Format("02/01/2006, 15:04:05"),
+				matchingDocuments := &shared.MatchingDocuments{Name: entry.Title,
+					Time: primitive.NewDateTimeFromTime(time.Time(*entry.PublishedParsed)),
 					Url:  feedUrl,
 				}
 				res, err := collection.InsertOne(ctx, matchingDocuments)

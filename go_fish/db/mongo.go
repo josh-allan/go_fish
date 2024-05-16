@@ -1,4 +1,4 @@
-package mongo
+package db
 
 import (
 	"context"
@@ -7,24 +7,34 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
+type MongoClient struct {
 	mongoClient *mongo.Client
 	collection  *mongo.Collection
-	ctx         context.Context
-)
+}
+
+type MatchingDocuments struct {
+	Name string             `bson:"name"`
+	Time primitive.DateTime `bson:"time"`
+	Url  string             `bson:"url"`
+}
 
 func loadDotEnv() {
 	godotenv.Load("../.env")
 	return
 }
 
-func ConnectToMongoDB() {
+func (self *MongoClient) connect(incoming_ctx context.Context) {
 	loadDotEnv()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	if self.mongoClient != nil {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(incoming_ctx, 30*time.Second)
 	defer cancel()
 
 	atlas_uri := os.Getenv("ATLAS_URI")
@@ -33,27 +43,26 @@ func ConnectToMongoDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// defer func() {
-	// 	if err = client.Disconnect(context.TODO()); err != nil {
-	// 		panic(err)
-	// 	}
-	// }()
-
 	// Check the connection
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	mongoClient = client
+	self.mongoClient = client
+
+	return
 }
 
-func GetMongoDBClient() *mongo.Client {
-	ConnectToMongoDB()
-	return mongoClient
+func (self *MongoClient) GetCollection(databaseName, collectionName string) *mongo.Collection {
+	self.connect(context.TODO())
+	return self.mongoClient.Database(databaseName).Collection(collectionName)
 }
 
-func GetCollection(databaseName, collectionName string) *mongo.Collection {
-	return GetMongoDBClient().Database(databaseName).Collection(collectionName)
+func (self MongoClient) disconnectFromMongoDB(incoming_context context.Context) {
+	defer func() {
+		if err := self.mongoClient.Disconnect(incoming_context); err != nil {
+			log.Fatal(err)
+		}
+	}()
 }

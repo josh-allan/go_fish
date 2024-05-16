@@ -1,6 +1,6 @@
-module github.com/josh-allan/terraforming-mars
+module github.com/josh-allan/go_fish
 
-go 1.22.2
+go 1.22.3
 
 require (
 	github.com/joho/godotenv v1.5.1
@@ -11,7 +11,6 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
-	github.com/ecnepsnai/discord v1.2.1 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
