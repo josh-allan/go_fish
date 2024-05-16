@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -15,12 +14,6 @@ import (
 type MongoClient struct {
 	mongoClient *mongo.Client
 	collection  *mongo.Collection
-}
-
-type MatchingDocuments struct {
-	Name string             `bson:"name"`
-	Time primitive.DateTime `bson:"time"`
-	Url  string             `bson:"url"`
 }
 
 func loadDotEnv() {
