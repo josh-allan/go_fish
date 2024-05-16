@@ -9,9 +9,9 @@ import (
 func containsIgnoreCase(s, substr string) bool {
 	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
-func Feed(feedUrl string, interestingSearches *[]string, lastUpdated *time.Time, matchedIDs map[string]bool) ([]*gofeed.Item, *time.Time, []string, error) {
+func Feed(feedUrl *string, interestingSearches *[]string, lastUpdated *time.Time, matchedIDs map[string]bool) ([]*gofeed.Item, *time.Time, []string, error) {
 	fp := gofeed.NewParser()
-	feed, err := fp.ParseURL(feedUrl)
+	feed, err := fp.ParseURL(*feedUrl)
 	if err != nil {
 		panic(err)
 	}

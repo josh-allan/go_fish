@@ -18,3 +18,5 @@ var SearchTerms = []string{
 	"RTX",
 	"Lenovo",
 }
+
+var FeedUrl = "https://ozbargain.com.au/feed"

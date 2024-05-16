@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -36,7 +35,7 @@ func main() {
 	defer cancel()
 
 	interestingSearches := &shared.SearchTerms
-	feedUrl := "https://ozbargain.com.au/feed"
+	feedUrl := &shared.FeedUrl
 	matchedIDs := make(map[string]bool)
 	parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
 
@@ -49,10 +48,11 @@ func main() {
 
 		if len(matchingEntries) > 0 {
 			for _, entry := range matchingEntries {
-				fmt.Printf("Matching entry found in %s: %s at %s\n", feedUrl, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
-				matchingDocuments := &shared.MatchingDocuments{Name: entry.Title,
+				fmt.Printf("Matching entry found in %s: %s at %s\n", *feedUrl, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
+				matchingDocuments := &shared.MatchingDocuments{
+					Name: entry.Title,
 					Time: primitive.NewDateTimeFromTime(time.Time(*entry.PublishedParsed)),
-					Url:  feedUrl,
+					Url:  *feedUrl,
 				}
 				res, err := collection.InsertOne(ctx, matchingDocuments)
 				if err != nil {
@@ -62,7 +62,7 @@ func main() {
 
 			}
 		} else {
-			fmt.Printf("No new matching entries found in %s.\n", feedUrl)
+			fmt.Printf("No new matching entries found in %s.\n", *feedUrl)
 		}
 
 		// Add the new matched IDs to the matched IDs map
