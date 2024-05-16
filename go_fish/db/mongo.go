@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/josh-allan/go_fish/util"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -50,6 +52,33 @@ func (self *MongoClient) connect(incoming_ctx context.Context) {
 func (self *MongoClient) GetCollection(databaseName, collectionName string) *mongo.Collection {
 	self.connect(context.TODO())
 	return self.mongoClient.Database(databaseName).Collection(collectionName)
+}
+
+func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseName, collectionName string) ([]shared.MatchingDocuments, error) {
+	coll := self.GetCollection(databaseName, collectionName)
+
+	filter := bson.D{}
+
+	cursor, err := coll.Find(incoming_ctx, filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cursor.Close(incoming_ctx)
+
+	var documents []shared.MatchingDocuments
+	for cursor.Next(incoming_ctx) {
+		var doc shared.MatchingDocuments
+		if err := cursor.Decode(&doc); err != nil {
+			return nil, err
+		}
+		documents = append(documents, doc)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return documents, nil
 }
 
 func (self MongoClient) disconnectFromMongoDB(incoming_context context.Context) {

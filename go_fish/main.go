@@ -31,7 +31,9 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	db_client := &db.MongoClient{}
 	collection := db_client.GetCollection(mongodb_database, mongodb_collection)
+	checkDb := db_client.GetAllDocuments(mongodb_database, mongodb_collection)
 
+	checkDb()
 	defer cancel()
 
 	interestingSearches := &shared.SearchTerms
@@ -48,11 +50,13 @@ func main() {
 
 		if len(matchingEntries) > 0 {
 			for _, entry := range matchingEntries {
-				fmt.Printf("Matching entry found in %s: %s at %s\n", *feedUrl, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
+
+				fmt.Printf("Matching entry found in %s: %s at %s\n", entry.Link, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
 				matchingDocuments := &shared.MatchingDocuments{
-					Name: entry.Title,
-					Time: primitive.NewDateTimeFromTime(time.Time(*entry.PublishedParsed)),
-					Url:  *feedUrl,
+					ID:            primitive.NewObjectID(),
+					Name:          entry.Title,
+					PublishedTime: primitive.NewDateTimeFromTime(time.Time(*entry.PublishedParsed)),
+					Url:           entry.Link,
 				}
 				res, err := collection.InsertOne(ctx, matchingDocuments)
 				if err != nil {

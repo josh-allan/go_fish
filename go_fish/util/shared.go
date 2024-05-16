@@ -5,9 +5,10 @@ import (
 )
 
 type MatchingDocuments struct {
-	Name string             `bson:"name"`
-	Time primitive.DateTime `bson:"time"`
-	Url  string             `bson:"url"`
+	ID            primitive.ObjectID `bson:"_id"`
+	Name          string             `bson:"name"`
+	PublishedTime primitive.DateTime `bson:"publishedtime"`
+	Url           string             `bson:"url"`
 }
 
 var SearchTerms = []string{
