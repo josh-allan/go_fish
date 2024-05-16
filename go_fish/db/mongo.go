@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -46,8 +45,6 @@ func ConnectToMongoDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("Pinged your deployment. You successfully connected to MongoDB!")
 
 	mongoClient = client
 }

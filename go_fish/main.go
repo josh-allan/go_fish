@@ -13,9 +13,14 @@ import (
 	"github.com/josh-allan/terraforming-mars/db"
 
 	"github.com/josh-allan/terraforming-mars/parser"
-	"go.mongodb.org/mongo-driver/bson"
 	"os"
 )
+
+type MatchingDocuments struct {
+	Name string `bson:"name"`
+	Time string `bson:"time"`
+	Url  string `bson:"url"`
+}
 
 func main() {
 	err := godotenv.Load()
@@ -47,7 +52,11 @@ func main() {
 		if len(matchingEntries) > 0 {
 			for _, entry := range matchingEntries {
 				fmt.Printf("Matching entry found in %s: %s at %s\n", feedUrl, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
-				res, err := collection.InsertOne(ctx, bson.M{"Title": entry.Title})
+				matchingDocuments := &MatchingDocuments{Name: entry.Title,
+					Time: time.Now().Format("02/01/2006, 15:04:05"),
+					Url:  feedUrl,
+				}
+				res, err := collection.InsertOne(ctx, matchingDocuments)
 				if err != nil {
 					log.Fatalf("Error inserting document: %v", err)
 				}
