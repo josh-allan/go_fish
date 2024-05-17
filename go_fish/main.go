@@ -31,9 +31,17 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	db_client := &db.MongoClient{}
 	collection := db_client.GetCollection(mongodb_database, mongodb_collection)
-	checkDb := db_client.GetAllDocuments(mongodb_database, mongodb_collection)
 
-	checkDb()
+	existingDocuments, err := db_client.GetAllDocuments(ctx, mongodb_database, mongodb_collection)
+	if err != nil {
+		log.Fatal("Error retrieving existing entries:", err)
+	}
+
+	existingIDs := make(map[string]bool)
+	for _, doc := range existingDocuments {
+		existingIDs[doc.GUID] = true
+	}
+
 	defer cancel()
 
 	interestingSearches := &shared.SearchTerms
@@ -50,20 +58,21 @@ func main() {
 
 		if len(matchingEntries) > 0 {
 			for _, entry := range matchingEntries {
-
-				fmt.Printf("Matching entry found in %s: %s at %s\n", entry.Link, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
-				matchingDocuments := &shared.MatchingDocuments{
-					ID:            primitive.NewObjectID(),
-					Name:          entry.Title,
-					PublishedTime: primitive.NewDateTimeFromTime(time.Time(*entry.PublishedParsed)),
-					Url:           entry.Link,
+				if !existingIDs[entry.GUID] {
+					fmt.Printf("Matching entry found in %s: %s at %s\n", entry.Link, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
+					matchingDocuments := &shared.MatchingDocuments{
+						ID:            primitive.NewObjectID(),
+						Name:          entry.Title,
+						PublishedTime: primitive.NewDateTimeFromTime(time.Time(*entry.PublishedParsed)),
+						Url:           entry.Link,
+						GUID:          entry.GUID,
+					}
+					res, err := collection.InsertOne(ctx, matchingDocuments)
+					if err != nil {
+						log.Fatalf("Error inserting document: %v", err)
+					}
+					fmt.Printf("Document inserted with ID: %s\n", res.InsertedID)
 				}
-				res, err := collection.InsertOne(ctx, matchingDocuments)
-				if err != nil {
-					log.Fatalf("Error inserting document: %v", err)
-				}
-				fmt.Printf("Document inserted with ID: %s\n", res.InsertedID)
-
 			}
 		} else {
 			fmt.Printf("No new matching entries found in %s.\n", *feedUrl)
