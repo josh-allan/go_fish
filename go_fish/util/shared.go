@@ -15,10 +15,12 @@ type MatchingDocuments struct {
 var SearchTerms = []string{
 	"Samsung",
 	"Steam",
-	"Credit Card",
 	"NVME",
 	"RTX",
 	"Lenovo",
+	"Ryzen",
+	"Sonos",
+	"Epic",
 }
 
 var FeedUrl = "https://ozbargain.com.au/feed"
