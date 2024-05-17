@@ -1,3 +1,5 @@
+A visual flow:
+
 ```mermaid
 graph TD;
     A[main.go] -->|Uses| B[parser.go]
