@@ -4,35 +4,34 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/josh-allan/go_fish/config"
 	"github.com/josh-allan/go_fish/db"
-	//"github.com/josh-allan/go_fish/discord"
 	"github.com/josh-allan/go_fish/parser"
-	"github.com/josh-allan/go_fish/util"
+	shared "github.com/josh-allan/go_fish/util"
 )
 
 var lastUpdated *time.Time
 
 func main() {
-	err := godotenv.Load()
-
-	mongodb_database := os.Getenv("MONGODB_DB_NAME")
-	mongodb_collection := os.Getenv("MONGODB_COLLECTION_NAME")
-
+	config, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Could not load config:", err)
+		return
 	}
+	log.Println("Config loaded successfully:", config)
 
+	var store db.Datastore
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	db_client := &db.MongoClient{}
-	collection := db_client.GetCollection(mongodb_database, mongodb_collection)
+	defer cancel()
 
-	existingDocuments, err := db_client.GetAllDocuments(ctx, mongodb_database, mongodb_collection)
+	store.GetAllDocuments(ctx)
+	// db_client := &db.MongoClient{}
+	// collection := db_client.GetCollection(mongodb_database, mongodb_collection)
+	// existingDocuments, err := db_client.GetAllDocuments(ctx, mongodb_database, mongodb_collection)
 	if err != nil {
 		log.Fatal("Error retrieving existing entries:", err)
 	}
@@ -41,8 +40,6 @@ func main() {
 	for _, doc := range existingDocuments {
 		existingIDs[doc.GUID] = true
 	}
-
-	defer cancel()
 
 	interestingSearches := &shared.SearchTerms
 	feedUrl := &shared.FeedUrl
