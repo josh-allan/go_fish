@@ -4,37 +4,42 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/josh-allan/go_fish/config"
 	"github.com/josh-allan/go_fish/db"
-	//"github.com/josh-allan/go_fish/discord"
 	"github.com/josh-allan/go_fish/parser"
-	"github.com/josh-allan/go_fish/util"
+	shared "github.com/josh-allan/go_fish/util"
 )
 
 var lastUpdated *time.Time
 
 func main() {
-	err := godotenv.Load()
-
-	mongodb_database := os.Getenv("MONGODB_DB_NAME")
-	mongodb_collection := os.Getenv("MONGODB_COLLECTION_NAME")
-
+	config, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Could not load config:", err)
+		return
+	}
+	log.Println("Config loaded successfully:", config)
+
+	var store db.Datastore
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	store.GetAllDocuments(ctx)
+	// db_client := &db.MongoClient{}
+	// collection := db_client.GetCollection(mongodb_database, mongodb_collection)
+	// existingDocuments, err := db_client.GetAllDocuments(ctx, mongodb_database, mongodb_collection)
+	if err != nil {
+		log.Fatal("Error retrieving existing entries:", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	db_client := &db.MongoClient{}
-	collection := db_client.GetCollection(mongodb_database, mongodb_collection)
-	checkDb := db_client.GetAllDocuments(mongodb_database, mongodb_collection)
-
-	checkDb()
-	defer cancel()
+	existingIDs := make(map[string]bool)
+	for _, doc := range existingDocuments {
+		existingIDs[doc.GUID] = true
+	}
 
 	interestingSearches := &shared.SearchTerms
 	feedUrl := &shared.FeedUrl
@@ -50,20 +55,21 @@ func main() {
 
 		if len(matchingEntries) > 0 {
 			for _, entry := range matchingEntries {
-
-				fmt.Printf("Matching entry found in %s: %s at %s\n", entry.Link, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
-				matchingDocuments := &shared.MatchingDocuments{
-					ID:            primitive.NewObjectID(),
-					Name:          entry.Title,
-					PublishedTime: primitive.NewDateTimeFromTime(time.Time(*entry.PublishedParsed)),
-					Url:           entry.Link,
+				if !existingIDs[entry.GUID] {
+					fmt.Printf("Matching entry found in %s: %s at %s\n", entry.Link, entry.Title, time.Now().Format("02/01/2006, 15:04:05"))
+					matchingDocuments := &shared.MatchingDocuments{
+						ID:            primitive.NewObjectID(),
+						Name:          entry.Title,
+						PublishedTime: primitive.NewDateTimeFromTime(time.Time(*entry.PublishedParsed)),
+						Url:           entry.Link,
+						GUID:          entry.GUID,
+					}
+					res, err := collection.InsertOne(ctx, matchingDocuments)
+					if err != nil {
+						log.Fatalf("Error inserting document: %v", err)
+					}
+					fmt.Printf("Document inserted with ID: %s\n", res.InsertedID)
 				}
-				res, err := collection.InsertOne(ctx, matchingDocuments)
-				if err != nil {
-					log.Fatalf("Error inserting document: %v", err)
-				}
-				fmt.Printf("Document inserted with ID: %s\n", res.InsertedID)
-
 			}
 		} else {
 			fmt.Printf("No new matching entries found in %s.\n", *feedUrl)
