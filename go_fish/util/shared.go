@@ -9,6 +9,7 @@ var SearchTerms = []string{
 	"Ryzen",
 	"Sonos",
 	"Epic",
+	"Kitchenaid",
 }
 
 var FeedUrl = "https://ozbargain.com.au/feed"

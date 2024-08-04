@@ -1,14 +1,16 @@
 package parser
 
 import (
-	"github.com/mmcdole/gofeed"
 	"strings"
 	"time"
+
+	"github.com/mmcdole/gofeed"
 )
 
 func containsIgnoreCase(s, substr string) bool {
 	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
+
 func Feed(feedUrl *string, interestingSearches *[]string, lastUpdated *time.Time, matchedIDs map[string]bool) ([]*gofeed.Item, *time.Time, []string, error) {
 	fp := gofeed.NewParser()
 	feed, err := fp.ParseURL(*feedUrl)

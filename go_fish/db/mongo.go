@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/josh-allan/go_fish/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -25,13 +24,13 @@ func loadDotEnv() {
 
 func (self *MongoClient) connect(incoming_ctx context.Context) {
 	loadDotEnv()
+
 	if self.mongoClient != nil {
 		return
 	}
 
 	ctx, cancel := context.WithTimeout(incoming_ctx, 30*time.Second)
 	defer cancel()
-
 	atlas_uri := os.Getenv("ATLAS_URI")
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(atlas_uri))
@@ -54,7 +53,7 @@ func (self *MongoClient) GetCollection(databaseName, collectionName string) *mon
 	return self.mongoClient.Database(databaseName).Collection(collectionName)
 }
 
-func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseName, collectionName string) ([]shared.MatchingDocuments, error) {
+func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseName, collectionName string) ([]MatchingDocuments, error) {
 	coll := self.GetCollection(databaseName, collectionName)
 
 	filter := bson.D{}
@@ -65,9 +64,9 @@ func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseN
 	}
 	defer cursor.Close(incoming_ctx)
 
-	var documents []shared.MatchingDocuments
+	var documents []MatchingDocuments
 	for cursor.Next(incoming_ctx) {
-		var doc shared.MatchingDocuments
+		var doc MatchingDocuments
 		if err := cursor.Decode(&doc); err != nil {
 			return nil, err
 		}
