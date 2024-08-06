@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/josh-allan/go_fish/util"
+	shared "github.com/josh-allan/go_fish/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,7 +15,6 @@ import (
 
 type MongoClient struct {
 	mongoClient *mongo.Client
-	collection  *mongo.Collection
 }
 
 func loadDotEnv() {
