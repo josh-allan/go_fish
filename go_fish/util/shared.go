@@ -9,6 +9,7 @@ type MatchingDocuments struct {
 	Name          string             `bson:"name"`
 	PublishedTime primitive.DateTime `bson:"publishedtime"`
 	Url           string             `bson:"url"`
+	GUID          string             `bson:"guid"`
 }
 
 var SearchTerms = []string{
