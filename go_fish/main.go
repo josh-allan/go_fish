@@ -23,7 +23,7 @@ func main() {
 		log.Fatal("Could not load config:", err)
 		return
 	}
-	log.Println("Config loaded successfully:", config)
+	log.Println("Config loaded successfully")
 
 	// var store db.Datastore
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
