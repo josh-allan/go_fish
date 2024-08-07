@@ -3,10 +3,9 @@ package db
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
+	"github.com/josh-allan/go_fish/config"
 	shared "github.com/josh-allan/go_fish/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,13 +16,8 @@ type MongoClient struct {
 	mongoClient *mongo.Client
 }
 
-func loadDotEnv() {
-	godotenv.Load("../.env")
-	return
-}
-
 func (self *MongoClient) connect(incoming_ctx context.Context) {
-	loadDotEnv()
+	config, err := config.LoadConfig()
 	if self.mongoClient != nil {
 		return
 	}
@@ -31,7 +25,7 @@ func (self *MongoClient) connect(incoming_ctx context.Context) {
 	ctx, cancel := context.WithTimeout(incoming_ctx, 30*time.Second)
 	defer cancel()
 
-	atlas_uri := os.Getenv("ATLAS_URI")
+	atlas_uri := config.MONGODB_ATLAS_URI
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(atlas_uri))
 	if err != nil {
