@@ -26,12 +26,12 @@ The current heirarchy of the project is as follows:
 |   `-- ./go_fish/main.go
 ```
 
-High-level overview of the modules:
-`load_config.go` houses the configuration struct that sources and passes the values tored in the `.env` at the project root.
-`parser.go` is the handler for the parser logic, as well as normalising the case.
-`shared.go` contains shared logic (such as the feed URLs, and the search terms that are being passed into the feed parser).
-`mongo.go` handles the db lookup logic, as well as the document insertion for matching entries.
-`main.go` the entrypoint for the program (as well as the combination of the above.). This also incorporates a webhook to a discord server to output the results.
+### High-level overview of the modules:
+- `load_config.go` houses the configuration struct that sources and passes the values tored in the `.env` at the project root.
+- `parser.go` is the handler for the parser logic, as well as normalising the case.
+- `shared.go` contains shared logic (such as the feed URLs, and the search terms that are being passed into the feed parser).
+- `mongo.go` handles the db lookup logic, as well as the document insertion for matching entries.
+- `main.go` the entrypoint for the program (as well as the combination of the above.). This also incorporates a webhook to a discord server to output the results.
 
 ### Running the package
 The expected environment variables will all be stored in the config struct in `load_config.go` - ensure that the `.env` file is populated with these values.
