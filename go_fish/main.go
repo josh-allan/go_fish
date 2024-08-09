@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -25,9 +26,19 @@ func main() {
 	}
 	log.Println("Config loaded successfully")
 
+	LOG_FILE := "/tmp/go_fish.log"
+	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer logFile.Close()
+
+	log.SetOutput(logFile)
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+
 	// var store db.Datastore
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
 	// store.GetAllDocuments(ctx)
 	db_client := &db.MongoClient{}
@@ -82,11 +93,11 @@ func main() {
 					if err != nil {
 						log.Fatalf("Error inserting document: %v", err)
 					}
-					fmt.Printf("Document inserted with ID: %s\n", res.InsertedID)
+					log.Printf("Document inserted with ID: %s\n", res.InsertedID)
 				}
 			}
 		} else {
-			fmt.Printf("No new matching entries found in %s.\n", *feedUrl)
+			log.Printf("No new matching entries found in %s.\n", *feedUrl)
 		}
 
 		// Add the new matched IDs to the matched IDs map
