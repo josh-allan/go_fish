@@ -2,9 +2,13 @@ A (very) WIP rewrite of my `ozbargain_hunter` python module, but in Go (with som
 
 # Project Overview
 The basic idea of this project is split into (currently) 3 components:
-    - `go_fish`
-    - `localstack`
-    - `terraform`
+- `go_fish`
+    - The parsing tool.
+- `localstack`
+    - Testing infrastructure
+- `terraform`
+    - Infrastructure as Code handling the deployments
+
 A `.env` will need to be present at the root of `go_fish` as this _presently_ handles secrets. I'm currently noodling on options that don't involve handling secrets this way.
 
 ## Go Fish
