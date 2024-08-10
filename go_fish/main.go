@@ -18,11 +18,9 @@ import (
 
 var lastUpdated *time.Time
 
-func initLogs() {
+func initLogs(logdir string) {
 
-	config, err := config.LoadConfig()
-
-	LOG_FILE := config.DOT_LOGS + "/gofish.log"
+	LOG_FILE := logdir + "/gofish.log"
 	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		os.Exit(1)
@@ -35,16 +33,15 @@ func initLogs() {
 
 func main() {
 
-	initLogs()
-
-	log.Println("Initialising Go Fish")
-	log.Println("Logger started")
-
 	config, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal("Could not load config:", err)
 		return
 	}
+
+	initLogs(config.DOT_LOGS)
+	log.Println("Initialising Go Fish")
+	log.Println("Logger started")
 	log.Println("Config loaded successfully")
 
 	// var store db.Datastore
