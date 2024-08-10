@@ -13,6 +13,7 @@ type Config struct {
 	MONGODB_ATLAS_URI     string
 	DISCORD_WEBHOOK_URL   string
 	DISCORD_USERNAME      string
+	DOT_LOGS              string
 }
 
 func LoadConfig() (*Config, error) {
@@ -29,5 +30,6 @@ func LoadConfig() (*Config, error) {
 		MONGODB_ATLAS_URI:     os.Getenv("MONGODB_ATLAS_URI"),
 		DISCORD_WEBHOOK_URL:   os.Getenv("DISCORD_WEBHOOK_URL"),
 		DISCORD_USERNAME:      os.Getenv("DISCORD_USERNAME"),
+		DOT_LOGS:              os.Getenv("DOT_LOGS"),
 	}, nil
 }

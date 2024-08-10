@@ -12,13 +12,9 @@ type MatchingDocuments struct {
 	GUID          string             `bson:"guid"`
 }
 
-var SearchTerms = []string{
-	"Samsung",
-	"Steam",
-	"Credit Card",
-	"NVME",
-	"RTX",
-	"Lenovo",
+type SearchTerms struct {
+	ID   primitive.ObjectID `bson:"_id"`
+	Term string             `bson:"term"`
 }
 
 var FeedUrl = "https://ozbargain.com.au/feed"

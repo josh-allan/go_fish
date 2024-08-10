@@ -18,7 +18,28 @@ import (
 
 var lastUpdated *time.Time
 
+func initLogs() {
+
+	config, err := config.LoadConfig()
+
+	LOG_FILE := config.DOT_LOGS + "/gofish.log"
+	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	log.SetOutput(logFile)
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+
+}
+
 func main() {
+
+	initLogs()
+
+	log.Println("Initialising Go Fish")
+	log.Println("Logger started")
+
 	config, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal("Could not load config:", err)
@@ -26,24 +47,22 @@ func main() {
 	}
 	log.Println("Config loaded successfully")
 
-	LOG_FILE := "/tmp/go_fish.log"
-	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	defer logFile.Close()
-
-	log.SetOutput(logFile)
-	log.SetFlags(log.Lshortfile | log.LstdFlags)
-
 	// var store db.Datastore
 	ctx := context.Background()
 
 	// store.GetAllDocuments(ctx)
 	db_client := &db.MongoClient{}
+
+	SearchTerms, err := db_client.GetTerms(ctx, config.MONGODB_DATABASE_NAME, "search_terms")
+	log.Println("Loading searching terms:", SearchTerms)
+	if err != nil {
+		log.Fatal("Error retrieving search terms:", err)
+		return
+	}
+
 	collection := db_client.GetCollection(config.MONGODB_DATABASE_NAME, config.MONGODB_COLLECTION)
 	existingDocuments, err := db_client.GetAllDocuments(ctx, config.MONGODB_DATABASE_NAME, config.MONGODB_COLLECTION)
+
 	if err != nil {
 		log.Fatal("Error retrieving existing entries:", err)
 	}
@@ -53,7 +72,7 @@ func main() {
 		existingIDs[doc.GUID] = true
 	}
 
-	interestingSearches := &shared.SearchTerms
+	interestingSearches := &SearchTerms
 	feedUrl := &shared.FeedUrl
 	matchedIDs := make(map[string]bool)
 	parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
