@@ -47,6 +47,32 @@ func (self *MongoClient) GetCollection(databaseName, collectionName string) *mon
 	return self.mongoClient.Database(databaseName).Collection(collectionName)
 }
 
+func (self *MongoClient) GetTerms(incoming_ctx context.Context, databaseName, collectionName string) ([]shared.SearchTerms, error) {
+	coll := self.GetCollection(databaseName, collectionName)
+
+	filter := bson.D{{Key: "term", Value: bson.D{{Key: "$exists", Value: true}}}}
+	cursor, err := coll.Find(incoming_ctx, filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cursor.Close(incoming_ctx)
+
+	var SearchTerms []shared.SearchTerms
+	for cursor.Next(incoming_ctx) {
+		var term shared.SearchTerms
+		if err := cursor.Decode(&term); err != nil {
+			return nil, err
+		}
+		SearchTerms = append(SearchTerms, term)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return SearchTerms, nil
+}
+
 func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseName, collectionName string) ([]shared.MatchingDocuments, error) {
 	coll := self.GetCollection(databaseName, collectionName)
 
