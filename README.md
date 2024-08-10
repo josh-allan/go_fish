@@ -5,9 +5,9 @@ The basic idea of this project is split into (currently) 3 components:
 - `go_fish`
     - The parsing tool.
 - `localstack`
-    - Testing infrastructure
+    - Testing locally deployed infrastructure
 - `terraform`
-    - Infrastructure as Code handling the deployments
+    - Infrastructure as Code handling the cloud deployments
 
 A `.env` will need to be present at the root of `go_fish` as this _presently_ handles secrets. I'm currently noodling on options that don't involve handling secrets this way.
 
@@ -32,7 +32,7 @@ The current heirarchy of the project is as follows:
 
 ### High-level overview of the modules:
 - `load_config.go` houses the configuration struct that sources and passes the values tored in the `.env` at the project root.
-- `parser.go` is the handler for the parser logic, as well as normalising the case.
+- `parser.go` is the handler for the parser logic, as well as normalising the case of the search terms.
 - `shared.go` contains shared logic (such as the feed URLs, and the search terms that are being passed into the feed parser).
 - `mongo.go` handles the db lookup logic, as well as the document insertion for matching entries.
 - `main.go` the entrypoint for the program (as well as the combination of the above.). This also incorporates a webhook to a discord server to output the results.
@@ -42,7 +42,7 @@ The expected environment variables will all be stored in the config struct in `l
 
 `go get` to pull in all external modules.
 
-Configure a disord webhook and store it under an env var.
+Configure a discord webhook and store it under an env var.
 
 `go run main.go` if you do not wish to compile the binary, otherwise `go build` && `./go_fish`
 
