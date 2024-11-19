@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,33 +12,20 @@ import (
 	"github.com/josh-allan/go_fish/config"
 	"github.com/josh-allan/go_fish/db"
 	"github.com/josh-allan/go_fish/parser"
-	shared "github.com/josh-allan/go_fish/util"
+	"github.com/josh-allan/go_fish/util"
 )
 
 var lastUpdated *time.Time
 
-func initLogs(logdir string) {
-
-	LOG_FILE := logdir + "/gofish.log"
-	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		os.Exit(1)
-	}
-
-	log.SetOutput(logFile)
-	log.SetFlags(log.Lshortfile | log.LstdFlags)
-
-}
-
 func main() {
 
-	config, err := config.LoadConfig()
+	conf, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal("Could not load config:", err)
 		return
 	}
 
-	initLogs(config.DOT_LOGS)
+	shared.InitLogs(conf.DOT_LOGS)
 	log.Println("Initialising Go Fish")
 	log.Println("Logger started")
 	log.Println("Config loaded successfully")
@@ -48,17 +34,17 @@ func main() {
 	ctx := context.Background()
 
 	// store.GetAllDocuments(ctx)
-	db_client := &db.MongoClient{}
+	dbClient := &db.MongoClient{}
 
-	SearchTerms, err := db_client.GetTerms(ctx, config.MONGODB_DATABASE_NAME, "search_terms")
+	SearchTerms, err := dbClient.GetTerms(ctx, conf.MONGODB_DATABASE_NAME, "search_terms")
 	log.Println("Loading searching terms:", SearchTerms)
 	if err != nil {
 		log.Fatal("Error retrieving search terms:", err)
 		return
 	}
 
-	collection := db_client.GetCollection(config.MONGODB_DATABASE_NAME, config.MONGODB_COLLECTION)
-	existingDocuments, err := db_client.GetAllDocuments(ctx, config.MONGODB_DATABASE_NAME, config.MONGODB_COLLECTION)
+	collection := dbClient.GetCollection(conf.MONGODB_DATABASE_NAME, conf.MONGODB_COLLECTION)
+	existingDocuments, err := dbClient.GetAllDocuments(ctx, conf.MONGODB_DATABASE_NAME, conf.MONGODB_COLLECTION)
 
 	if err != nil {
 		log.Fatal("Error retrieving existing entries:", err)
@@ -74,8 +60,8 @@ func main() {
 	matchedIDs := make(map[string]bool)
 	parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
 	formattedTime := time.Now().Format("02/01/2006, 15:04:05")
-	var webhookURL = config.DISCORD_WEBHOOK_URL
-	var username = config.DISCORD_USERNAME
+	var webhookURL = conf.DISCORD_WEBHOOK_URL
+	var username = conf.DISCORD_USERNAME
 
 	for {
 		matchingEntries, _, newMatchedIDs, err := parser.Feed(feedUrl, interestingSearches, nil, matchedIDs)

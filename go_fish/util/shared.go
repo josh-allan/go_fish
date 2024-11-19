@@ -2,6 +2,8 @@ package shared
 
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
+	"os"
 )
 
 type MatchingDocuments struct {
@@ -18,3 +20,16 @@ type SearchTerms struct {
 }
 
 var FeedUrl = "https://ozbargain.com.au/feed"
+
+func InitLogs(logdir string) {
+
+	LogFile := logdir + "/gofish.log"
+	logFile, err := os.OpenFile(LogFile, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	log.SetOutput(logFile)
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+
+}
