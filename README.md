@@ -17,6 +17,8 @@ The current heirarchy of the project is as follows:
 ```
 |-- ./go_fish
 |   |--.env
+|   |-- ./go_fish/cmd
+|   |    `-- ./go_fish/main.go
 |   |-- ./go_fish/config
 |   |   `-- ./go_fish/config/load_config.go
 |   |-- ./go_fish/go.mod
@@ -27,7 +29,6 @@ The current heirarchy of the project is as follows:
 |   |-- ./go_fish/db
 |   |   `-- ./go_fish/db/mongo.go
 |   |-- ./go_fish/go.sum
-|   `-- ./go_fish/main.go
 ```
 
 ### High-level overview of the modules:
