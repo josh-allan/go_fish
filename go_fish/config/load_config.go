@@ -8,12 +8,12 @@ import (
 )
 
 type Config struct {
-	MONGODB_DATABASE_NAME string
-	MONGODB_COLLECTION    string
-	MONGODB_ATLAS_URI     string
-	DISCORD_WEBHOOK_URL   string
-	DISCORD_USERNAME      string
-	DOT_LOGS              string
+	MongodbDatabaseName string
+	MongodbCollection   string
+	MongodbAtlasUri     string
+	DiscordWebhookUrl   string
+	DiscordUsername     string
+	DotLogs             string
 }
 
 func LoadConfig() (*Config, error) {
@@ -25,11 +25,11 @@ func LoadConfig() (*Config, error) {
 	}
 
 	return &Config{
-		MONGODB_DATABASE_NAME: os.Getenv("MONGODB_DATABASE_NAME"),
-		MONGODB_COLLECTION:    os.Getenv("MONGODB_COLLECTION_NAME"),
-		MONGODB_ATLAS_URI:     os.Getenv("MONGODB_ATLAS_URI"),
-		DISCORD_WEBHOOK_URL:   os.Getenv("DISCORD_WEBHOOK_URL"),
-		DISCORD_USERNAME:      os.Getenv("DISCORD_USERNAME"),
-		DOT_LOGS:              os.Getenv("DOT_LOGS"),
+		MongodbDatabaseName: os.Getenv("MONGODB_DATABASE_NAME"),
+		MongodbCollection:   os.Getenv("MONGODB_COLLECTION_NAME"),
+		MongodbAtlasUri:     os.Getenv("MONGODB_ATLAS_URI"),
+		DiscordWebhookUrl:   os.Getenv("DISCORD_WEBHOOK_URL"),
+		DiscordUsername:     os.Getenv("DISCORD_USERNAME"),
+		DotLogs:             os.Getenv("DOT_LOGS"),
 	}, nil
 }

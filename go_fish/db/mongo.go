@@ -16,18 +16,18 @@ type MongoClient struct {
 	mongoClient *mongo.Client
 }
 
-func (self *MongoClient) connect(incoming_ctx context.Context) {
-	config, err := config.LoadConfig()
-	if self.mongoClient != nil {
+func (c *MongoClient) connect(incomingCtx context.Context) {
+	dbConfig, err := config.LoadConfig()
+	if c.mongoClient != nil {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(incoming_ctx, 30*time.Second)
+	ctx, cancel := context.WithTimeout(incomingCtx, 30*time.Second)
 	defer cancel()
 
-	atlas_uri := config.MONGODB_ATLAS_URI
+	atlasUri := dbConfig.MongodbAtlasUri
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(atlas_uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(atlasUri))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,28 +37,33 @@ func (self *MongoClient) connect(incoming_ctx context.Context) {
 		log.Fatal(err)
 	}
 
-	self.mongoClient = client
+	c.mongoClient = client
 
 	return
 }
 
-func (self *MongoClient) GetCollection(databaseName, collectionName string) *mongo.Collection {
-	self.connect(context.TODO())
-	return self.mongoClient.Database(databaseName).Collection(collectionName)
+func (c *MongoClient) GetCollection(databaseName, collectionName string) *mongo.Collection {
+	c.connect(context.TODO())
+	return c.mongoClient.Database(databaseName).Collection(collectionName)
 }
 
-func (self *MongoClient) GetTerms(incoming_ctx context.Context, databaseName, collectionName string) ([]shared.SearchTerms, error) {
-	coll := self.GetCollection(databaseName, collectionName)
+func (c *MongoClient) GetTerms(incomingCtx context.Context, databaseName, collectionName string) ([]shared.SearchTerms, error) {
+	coll := c.GetCollection(databaseName, collectionName)
 
 	filter := bson.D{{Key: "term", Value: bson.D{{Key: "$exists", Value: true}}}}
-	cursor, err := coll.Find(incoming_ctx, filter)
+	cursor, err := coll.Find(incomingCtx, filter)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cursor.Close(incoming_ctx)
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(cursor, incomingCtx)
 
 	var SearchTerms []shared.SearchTerms
-	for cursor.Next(incoming_ctx) {
+	for cursor.Next(incomingCtx) {
 		var term shared.SearchTerms
 		if err := cursor.Decode(&term); err != nil {
 			return nil, err
@@ -73,19 +78,24 @@ func (self *MongoClient) GetTerms(incoming_ctx context.Context, databaseName, co
 	return SearchTerms, nil
 }
 
-func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseName, collectionName string) ([]shared.MatchingDocuments, error) {
-	coll := self.GetCollection(databaseName, collectionName)
+func (c *MongoClient) GetAllDocuments(incomingCtx context.Context, databaseName, collectionName string) ([]shared.MatchingDocuments, error) {
+	coll := c.GetCollection(databaseName, collectionName)
 
 	filter := bson.D{}
 
-	cursor, err := coll.Find(incoming_ctx, filter)
+	cursor, err := coll.Find(incomingCtx, filter)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cursor.Close(incoming_ctx)
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(cursor, incomingCtx)
 
 	var documents []shared.MatchingDocuments
-	for cursor.Next(incoming_ctx) {
+	for cursor.Next(incomingCtx) {
 		var doc shared.MatchingDocuments
 		if err := cursor.Decode(&doc); err != nil {
 			return nil, err
@@ -100,9 +110,9 @@ func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseN
 	return documents, nil
 }
 
-func (self MongoClient) disconnectFromMongoDB(incoming_context context.Context) {
+func (c MongoClient) disconnectFromMongoDB(incomingContext context.Context) {
 	defer func() {
-		if err := self.mongoClient.Disconnect(incoming_context); err != nil {
+		if err := c.mongoClient.Disconnect(incomingContext); err != nil {
 			log.Fatal(err)
 		}
 	}()

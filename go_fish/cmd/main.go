@@ -25,7 +25,7 @@ func main() {
 		return
 	}
 
-	shared.InitLogs(conf.DOT_LOGS)
+	shared.InitLogs(conf.DotLogs)
 	log.Println("Initialising Go Fish")
 	log.Println("Logger started")
 	log.Println("Config loaded successfully")
@@ -36,15 +36,15 @@ func main() {
 	// store.GetAllDocuments(ctx)
 	dbClient := &db.MongoClient{}
 
-	SearchTerms, err := dbClient.GetTerms(ctx, conf.MONGODB_DATABASE_NAME, "search_terms")
+	SearchTerms, err := dbClient.GetTerms(ctx, conf.MongodbDatabaseName, "search_terms")
 	log.Println("Loading searching terms:", SearchTerms)
 	if err != nil {
 		log.Fatal("Error retrieving search terms:", err)
 		return
 	}
 
-	collection := dbClient.GetCollection(conf.MONGODB_DATABASE_NAME, conf.MONGODB_COLLECTION)
-	existingDocuments, err := dbClient.GetAllDocuments(ctx, conf.MONGODB_DATABASE_NAME, conf.MONGODB_COLLECTION)
+	collection := dbClient.GetCollection(conf.MongodbDatabaseName, conf.MongodbCollection)
+	existingDocuments, err := dbClient.GetAllDocuments(ctx, conf.MongodbDatabaseName, conf.MongodbCollection)
 
 	if err != nil {
 		log.Fatal("Error retrieving existing entries:", err)
@@ -60,8 +60,8 @@ func main() {
 	matchedIDs := make(map[string]bool)
 	parser.Feed(feedUrl, interestingSearches, lastUpdated, matchedIDs)
 	formattedTime := time.Now().Format("02/01/2006, 15:04:05")
-	var webhookURL = conf.DISCORD_WEBHOOK_URL
-	var username = conf.DISCORD_USERNAME
+	var webhookURL = conf.DiscordWebhookUrl
+	var username = conf.DiscordUsername
 
 	for {
 		matchingEntries, _, newMatchedIDs, err := parser.Feed(feedUrl, interestingSearches, nil, matchedIDs)
