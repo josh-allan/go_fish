@@ -71,7 +71,9 @@ func main() {
 					shared.NotifyDiscord(conf.DiscordWebhookUrl, conf.DiscordUsername, matchingDoc, time.Now())
 					_, err := dbClient.InsertDocument(ctx, conf.MongodbDatabaseName, conf.MongodbCollection, entry)
 					if err != nil {
-						return
+						log.Printf("Error inserting document: %v\n", err)
+					} else {
+						log.Printf("Matching entry found at: %s\n", matchingDoc.GUID)
 					}
 				}
 			}
