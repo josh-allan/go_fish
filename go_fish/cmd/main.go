@@ -24,7 +24,7 @@ func main() {
 	log.Println("Config loaded successfully")
 
 	ctx := context.Background()
-	dbClient, err := db.NewMongoClient(conf.MongodbAtlasUri)
+	dbClient, err := db.NewMongoClient(conf.MongoDBAtlasUri)
 	if err != nil {
 		log.Fatal("Error creating MongoDB client:", err)
 		return
@@ -36,14 +36,14 @@ func main() {
 		}
 	}(dbClient)
 
-	searchTerms, err := dbClient.GetTerms(ctx, conf.MongodbDatabaseName, "search_terms")
+	searchTerms, err := dbClient.GetTerms(ctx, conf.MongoDBDatabaseName, "search_terms")
 	if err != nil {
 		log.Fatal("Error retrieving search terms:", err)
 		return
 	}
 	log.Println("Loading search terms:", searchTerms)
 
-	existingDocuments, err := dbClient.GetAllDocuments(ctx, conf.MongodbDatabaseName, conf.MongodbCollection)
+	existingDocuments, err := dbClient.GetAllDocuments(ctx, conf.MongoDBDatabaseName, conf.MongoDBCollection)
 	if err != nil {
 		log.Fatal("Error retrieving existing entries:", err)
 	}
@@ -69,7 +69,7 @@ func main() {
 				if !existingIDs[entry.GUID] {
 					matchingDoc := shared.ConvertToMatchingDocuments(entry)
 					shared.NotifyDiscord(conf.DiscordWebhookUrl, conf.DiscordUsername, matchingDoc, time.Now())
-					_, err := dbClient.InsertDocument(ctx, conf.MongodbDatabaseName, conf.MongodbCollection, entry)
+					_, err := dbClient.InsertDocument(ctx, conf.MongoDBDatabaseName, conf.MongoDBCollection, entry)
 					if err != nil {
 						log.Printf("Error inserting document: %v\n", err)
 					} else {

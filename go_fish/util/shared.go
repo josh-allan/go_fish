@@ -25,6 +25,7 @@ type SearchTerms struct {
 
 var FeedUrl = "https://ozbargain.com.au/feed"
 
+// ConvertToMatchingDocuments Take the parsed item and convert it to a MatchingDocuments struct
 func ConvertToMatchingDocuments(item *gofeed.Item) MatchingDocuments {
 	return MatchingDocuments{
 		ID:            primitive.NewObjectID(),
@@ -34,6 +35,8 @@ func ConvertToMatchingDocuments(item *gofeed.Item) MatchingDocuments {
 		GUID:          item.GUID,
 	}
 }
+
+// InitLogs Initialises the logger
 func InitLogs(logdir string) {
 
 	LogFile := logdir + "/gofish.log"
@@ -46,6 +49,8 @@ func InitLogs(logdir string) {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
 }
+
+// NotifyDiscord sends a message to a Discord webhook
 func NotifyDiscord(webhookURL, username string, entry MatchingDocuments, timestamp time.Time) {
 	formattedTime := timestamp.Format(time.RFC1123)
 	content := fmt.Sprintf("Matching entry found in %s: %s at %s\n", entry.Url, entry.Name, formattedTime)
