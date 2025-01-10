@@ -14,6 +14,7 @@ type Config struct {
 	DiscordWebhookUrl   string
 	DiscordUsername     string
 	DotLogs             string
+	SearchTerms         string
 }
 
 // LoadConfig loads the configuration from a .env file
@@ -32,5 +33,6 @@ func LoadConfig() (*Config, error) {
 		DiscordWebhookUrl:   os.Getenv("DISCORD_WEBHOOK_URL"),
 		DiscordUsername:     os.Getenv("DISCORD_USERNAME"),
 		DotLogs:             os.Getenv("DOT_LOGS"),
+		SearchTerms:         os.Getenv("SEARCH_TERMS"),
 	}, nil
 }

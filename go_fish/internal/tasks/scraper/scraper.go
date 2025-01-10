@@ -35,7 +35,7 @@ func GoFish() {
 		}
 	}(dbClient)
 
-	searchTerms, err := dbClient.GetTerms(ctx, conf.MongoDBDatabaseName, "search_terms")
+	searchTerms, err := dbClient.GetTerms(ctx, conf.MongoDBDatabaseName, conf.SearchTerms)
 	if err != nil {
 		log.Fatal("Error retrieving search terms:", err)
 		return

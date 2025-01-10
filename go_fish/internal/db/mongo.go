@@ -74,7 +74,6 @@ func (m *MongoClient) GetAllDocuments(ctx context.Context, database string, coll
 			return
 		}
 	}(cursor, ctx)
-
 	var docs []MatchingDocuments
 	for cursor.Next(ctx) {
 		var result MatchingDocuments
