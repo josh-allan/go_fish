@@ -1,9 +1,13 @@
 package shared
 
 import (
+	"fmt"
+	"github.com/gtuk/discordwebhook"
+	"github.com/mmcdole/gofeed"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"os"
+	"time"
 )
 
 type MatchingDocuments struct {
@@ -21,6 +25,15 @@ type SearchTerms struct {
 
 var FeedUrl = "https://ozbargain.com.au/feed"
 
+func ConvertToMatchingDocuments(item *gofeed.Item) MatchingDocuments {
+	return MatchingDocuments{
+		ID:            primitive.NewObjectID(),
+		Name:          item.Title,
+		PublishedTime: primitive.NewDateTimeFromTime(*item.PublishedParsed),
+		Url:           item.Link,
+		GUID:          item.GUID,
+	}
+}
 func InitLogs(logdir string) {
 
 	LogFile := logdir + "/gofish.log"
@@ -32,4 +45,17 @@ func InitLogs(logdir string) {
 	log.SetOutput(logFile)
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
+}
+func NotifyDiscord(webhookURL, username string, entry MatchingDocuments, timestamp time.Time) {
+	formattedTime := timestamp.Format(time.RFC1123)
+	content := fmt.Sprintf("Matching entry found in %s: %s at %s\n", entry.Url, entry.Name, formattedTime)
+	message := discordwebhook.Message{
+		Username: &username,
+		Content:  &content,
+	}
+
+	err := discordwebhook.SendMessage(webhookURL, message)
+	if err != nil {
+		log.Printf("Error sending message to Discord: %v", err)
+	}
 }
