@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
+	"github.com/josh-allan/go_fish/config"
+	shared "github.com/josh-allan/go_fish/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -14,26 +14,20 @@ import (
 
 type MongoClient struct {
 	mongoClient *mongo.Client
-	collection  *mongo.Collection
 }
 
-func loadDotEnv() {
-	godotenv.Load("../.env")
-	return
-}
-
-func (self *MongoClient) connect(incoming_ctx context.Context) {
-	loadDotEnv()
-
-	if self.mongoClient != nil {
+func (c *MongoClient) connect(incomingCtx context.Context) {
+	dbConfig, err := config.LoadConfig()
+	if c.mongoClient != nil {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(incoming_ctx, 30*time.Second)
+	ctx, cancel := context.WithTimeout(incomingCtx, 30*time.Second)
 	defer cancel()
-	atlas_uri := os.Getenv("ATLAS_URI")
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(atlas_uri))
+	atlasUri := dbConfig.MongodbAtlasUri
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(atlasUri))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,30 +37,66 @@ func (self *MongoClient) connect(incoming_ctx context.Context) {
 		log.Fatal(err)
 	}
 
-	self.mongoClient = client
+	c.mongoClient = client
 
 	return
 }
 
-func (self *MongoClient) GetCollection(databaseName, collectionName string) *mongo.Collection {
-	self.connect(context.TODO())
-	return self.mongoClient.Database(databaseName).Collection(collectionName)
+func (c *MongoClient) GetCollection(databaseName, collectionName string) *mongo.Collection {
+	c.connect(context.TODO())
+	return c.mongoClient.Database(databaseName).Collection(collectionName)
 }
 
-func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseName, collectionName string) ([]MatchingDocuments, error) {
-	coll := self.GetCollection(databaseName, collectionName)
+func (c *MongoClient) GetTerms(incomingCtx context.Context, databaseName, collectionName string) ([]shared.SearchTerms, error) {
+	coll := c.GetCollection(databaseName, collectionName)
 
-	filter := bson.D{}
-
-	cursor, err := coll.Find(incoming_ctx, filter)
+	filter := bson.D{{Key: "term", Value: bson.D{{Key: "$exists", Value: true}}}}
+	cursor, err := coll.Find(incomingCtx, filter)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cursor.Close(incoming_ctx)
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(cursor, incomingCtx)
 
-	var documents []MatchingDocuments
-	for cursor.Next(incoming_ctx) {
-		var doc MatchingDocuments
+	var SearchTerms []shared.SearchTerms
+	for cursor.Next(incomingCtx) {
+		var term shared.SearchTerms
+		if err := cursor.Decode(&term); err != nil {
+			return nil, err
+		}
+		SearchTerms = append(SearchTerms, term)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return SearchTerms, nil
+}
+
+func (c *MongoClient) GetAllDocuments(incomingCtx context.Context, databaseName, collectionName string) ([]shared.MatchingDocuments, error) {
+	coll := c.GetCollection(databaseName, collectionName)
+
+	filter := bson.D{}
+
+	cursor, err := coll.Find(incomingCtx, filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(cursor, incomingCtx)
+
+	var documents []shared.MatchingDocuments
+	for cursor.Next(incomingCtx) {
+		var doc shared.MatchingDocuments
 		if err := cursor.Decode(&doc); err != nil {
 			return nil, err
 		}
@@ -80,9 +110,9 @@ func (self *MongoClient) GetAllDocuments(incoming_ctx context.Context, databaseN
 	return documents, nil
 }
 
-func (self MongoClient) disconnectFromMongoDB(incoming_context context.Context) {
+func (c MongoClient) disconnectFromMongoDB(incomingContext context.Context) {
 	defer func() {
-		if err := self.mongoClient.Disconnect(incoming_context); err != nil {
+		if err := c.mongoClient.Disconnect(incomingContext); err != nil {
 			log.Fatal(err)
 		}
 	}()
