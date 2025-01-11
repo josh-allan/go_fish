@@ -1,4 +1,4 @@
-package list_terms
+package list_term
 
 import (
 	"context"
@@ -7,9 +7,8 @@ import (
 	"github.com/josh-allan/go_fish/internal/db"
 )
 
-// List terms from database
 func ListTerms(config *config.Config) {
-
+	// List terms from database
 	ctx := context.Background()
 	dbClient, err := db.NewMongoClient(config.MongoDBAtlasUri)
 	if err != nil {

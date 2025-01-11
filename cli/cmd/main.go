@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/josh-allan/go_fish/internal/config"
 	addterm "github.com/josh-allan/go_fish/internal/tasks/add-term"
-	listterm "github.com/josh-allan/go_fish/internal/tasks/list-terms"
+	deleteterm "github.com/josh-allan/go_fish/internal/tasks/delete-term"
+	listterm "github.com/josh-allan/go_fish/internal/tasks/list-term"
 	"github.com/josh-allan/go_fish/internal/tasks/scraper"
 	"log"
 
@@ -28,7 +29,7 @@ var scrapeCmd = &cobra.Command{
 var insertCmd = &cobra.Command{
 	Use:   "insert",
 	Short: "Insert RSS feed search terms",
-	Long:  "Insert new terms for the RSS scraper to search on",
+	Long:  "Insert new terms into the search terms collection for the RSS scraper to search on",
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := config.LoadConfig()
 		if err != nil {
@@ -46,7 +47,7 @@ var insertCmd = &cobra.Command{
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List RSS feed search terms",
-	Long:  "List the current search terms",
+	Long:  "List the current search terms in the search terms collection",
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := config.LoadConfig()
 		if err != nil {
@@ -56,11 +57,31 @@ var listCmd = &cobra.Command{
 	},
 }
 
+var deleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete RSS feed search terms",
+	Long:  "Delete a term from the search terms collection",
+	Run: func(cmd *cobra.Command, args []string) {
+		config, err := config.LoadConfig()
+		if err != nil {
+			log.Fatalf("Error loading config: %v", err)
+		}
+		term, _ := cmd.Flags().GetString("term")
+		err = deleteterm.DeleteTerm(config, term)
+		if err != nil {
+			log.Fatalf("Error deleting term: %v", err)
+		}
+		log.Printf("Deleted term: %s", term)
+	},
+}
+
 func init() {
 	insertCmd.Flags().StringP("term", "t", "", "The term to add to the search list")
+	deleteCmd.Flags().StringP("term", "t", "", "The term to remove from the search list")
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(scrapeCmd)
 	rootCmd.AddCommand(insertCmd)
+	rootCmd.AddCommand(deleteCmd)
 }
 
 func main() {
