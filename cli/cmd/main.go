@@ -11,7 +11,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "go_fish",
+	Use:   "gofish",
 	Short: "Go Fish searches RSS feeds",
 	Long:  "Go Fish is a tool to search RSS feeds for specific terms",
 }

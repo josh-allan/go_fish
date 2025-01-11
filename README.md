@@ -57,7 +57,13 @@ The expected environment variables will all be stored in the config struct in `l
 
 Configure a discord webhook and store it under an env var.
 
-`go run main.go` if you do not wish to compile the binary, otherwise `go build` && `./go_fish`
+`go run cmd/main.go` if you do not wish to compile the binary, otherwise `go build` && `./go_fish`
+
+`gofish insert` takes a string argument and inserts it into the `search_terms` collection.
+
+`gofish list` will return all current entries in the `search_terms` collection.
+
+`gofish scrape` will initialise the scraper.
 
 ## Localstack
 
