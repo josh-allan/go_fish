@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// GoFish is the main function for the scraper
 func GoFish() {
 	conf, err := config.LoadConfig()
 	if err != nil {

@@ -6,8 +6,9 @@ import (
 	"github.com/josh-allan/go_fish/internal/db"
 )
 
+// Add term to database
 func AddTerm(config *config.Config, term string) error {
-	// Add term to database
+
 	ctx := context.Background()
 	dbClient, err := db.NewMongoClient(config.MongoDBAtlasUri)
 	if err != nil {
