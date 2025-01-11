@@ -59,7 +59,7 @@ Configure a discord webhook and store it under an env var.
 
 `go run cmd/main.go` if you do not wish to compile the binary, otherwise `go build` && `./go_fish`
 
-### CLI functionality.
+### CLI functionality
 
 `gofish insert` takes a string argument and inserts it into the `search_terms` collection.
 
