@@ -50,14 +50,16 @@ cli
 - `scraper.go` is the handler for initialising the scraper. 
 - `main.go` the entrypoint for the program (as well as the combination of the above.). This also incorporates a webhook to a discord server to output the results.
 
-### Running the package
+### Compiling the package
 The expected environment variables will all be stored in the config struct in `load_config.go` - ensure that the `.env` file is populated with these values.
-
-`go get` to pull in all external modules.
 
 Configure a discord webhook and store it under an env var.
 
+`go get` to pull in all external modules.
+
 `go run cmd/main.go` if you do not wish to compile the binary, otherwise `go build` && `./go_fish`
+
+### CLI functionality.
 
 `gofish insert` takes a string argument and inserts it into the `search_terms` collection.
 
