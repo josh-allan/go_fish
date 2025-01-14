@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/josh-allan/go_fish/internal/config"
 	"github.com/josh-allan/go_fish/internal/db"
+	"github.com/josh-allan/go_fish/internal/logger"
 	"github.com/josh-allan/go_fish/internal/parser"
 	shared "github.com/josh-allan/go_fish/internal/util"
 	"log"
@@ -18,7 +19,7 @@ func GoFish() {
 		return
 	}
 
-	shared.InitLogs(conf.DotLogs)
+	logger.InitLogs(conf.DotLogs)
 	log.Println("Initialising Go Fish")
 	log.Println("Logger started")
 	log.Println("Config loaded successfully")

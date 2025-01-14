@@ -6,7 +6,6 @@ import (
 	"github.com/mmcdole/gofeed"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
-	"os"
 	"time"
 )
 
@@ -34,20 +33,6 @@ func ConvertToMatchingDocuments(item *gofeed.Item) MatchingDocuments {
 		Url:           item.Link,
 		GUID:          item.GUID,
 	}
-}
-
-// InitLogs Initialises the logger
-func InitLogs(logdir string) {
-
-	LogFile := logdir + "/gofish.log"
-	logFile, err := os.OpenFile(LogFile, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		os.Exit(1)
-	}
-
-	log.SetOutput(logFile)
-	log.SetFlags(log.Lshortfile | log.LstdFlags)
-
 }
 
 // NotifyDiscord sends a message to a Discord webhook
